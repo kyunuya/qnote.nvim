@@ -107,7 +107,7 @@ function toggle_file_selector()
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, display_names)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 
-	local width = math.max(vim.o.columns * 0.5, 50)
+	local width = math.max(math.floor(vim.o.columns * 0.5), 50)
 	local height = #files + 2
 	local row = math.floor((vim.o.lines - height) / 2)
 	local col = math.floor((vim.o.columns - width) / 2)
