@@ -54,20 +54,6 @@ local function open_note_file(file)
 
 	win_mgr.note_win_id = win
 
-	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
-		noremap = true,
-		silent = true,
-		callback = function()
-			if vim.api.nvim_get_option_value("modified", { buf = buf }) then
-				vim.notify("Save your changes", vim.log.levels.WARN)
-			else
-				win_mgr.note_win_id = nil
-				win_mgr.note_buf_id = nil
-				win_mgr.close_window("note")
-			end
-		end,
-	})
-
 	vim.api.nvim_create_autocmd("BufWinLeave", {
 		buffer = buf,
 		desc = "Reset window state on leave",
@@ -102,6 +88,8 @@ function M.toggle(selected_file)
 		win_mgr.close_window("note")
 		return
 	end
+
+	win_mgr.close_any_open_window()
 
 	local file = type(selected_file) == "string" and selected_file or find_latest_file()
 

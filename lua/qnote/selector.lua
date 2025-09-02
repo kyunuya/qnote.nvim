@@ -2,7 +2,7 @@ local win_mgr = require("qnote.window")
 
 local M = {}
 
-local open_file_selector
+local toggle_file_selector
 
 ---@param buf integer: buffer id
 ---@param paths table: full path of files
@@ -81,7 +81,12 @@ local function get_files()
 	return files
 end
 
-function open_file_selector()
+function toggle_file_selector()
+	if win_mgr.selector_win_id and vim.api.nvim_win_is_valid(win_mgr.selector_win_id) then
+		win_mgr.close_window("selector")
+		return
+	end
+
 	local buf = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
 	vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
@@ -115,7 +120,7 @@ function open_file_selector()
 		row = row,
 		col = col,
 		border = "rounded",
-		title = "QUICK NOTE - FILES",
+		title = { { " QUICK NOTE - FILES ", "TelescopeResultsTitle" } },
 		title_pos = "center",
 		focusable = true,
 	}
@@ -127,7 +132,7 @@ function open_file_selector()
 		buffer = buf,
 		desc = "Reset selector window state when closed",
 		callback = function()
-			win_mgr.selector_win_id = nil
+			win_mgr.close_window("selector")
 		end,
 	})
 
@@ -136,7 +141,7 @@ end
 
 function M.selector()
 	if win_mgr.close_window("note") then
-		open_file_selector()
+		toggle_file_selector()
 	end
 end
 

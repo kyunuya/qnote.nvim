@@ -36,7 +36,7 @@ function M.note_win_conf(file)
 		height = height,
 		col = outer_col,
 		row = outer_row,
-		title = file,
+		title = { { " " .. file .. " ", "TelescopeResultsTitle" } },
 		title_pos = "center",
 		border = "rounded",
 	}
