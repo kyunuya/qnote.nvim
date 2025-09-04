@@ -10,6 +10,6 @@ end
 
 vim.api.nvim_create_user_command("QnoteToggle", note.toggle, {})
 vim.api.nvim_create_user_command("QnoteNew", note.new, {})
-vim.api.nvim_create_user_command("QnoteSelector", selector.selector, {})
+vim.api.nvim_create_user_command("QnoteList", selector.selector, {})
 
 return M
