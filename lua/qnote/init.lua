@@ -8,8 +8,8 @@ M.setup = function(opts)
 	config.setup(opts)
 end
 
-vim.api.nvim_create_user_command("QuicknoteToggle", note.toggle, {})
-vim.api.nvim_create_user_command("QuicknoteNew", note.new, {})
-vim.api.nvim_create_user_command("QuicknoteSelector", selector.selector, {})
+vim.api.nvim_create_user_command("QnoteToggle", note.toggle, {})
+vim.api.nvim_create_user_command("QnoteNew", note.new, {})
+vim.api.nvim_create_user_command("QnoteSelector", selector.selector, {})
 
 return M
