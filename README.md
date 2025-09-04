@@ -1,5 +1,5 @@
 # qnote.nvim
-This is a global note taking plugin for Neovim, aiming to help you quickly create, delete, read, and edit notes from a single central directory.
+This is a global notepad plugin for Neovim, to quickly create, delete, read, and edit notes no matter where you are in neovim.
 
 ## Features
 - [x] **Open Note:** Toggle floating notepad from any neovim file
