@@ -1,7 +1,7 @@
 local win_mgr = require("qnote.window")
+local conf = require("qnote.config")
 
 local M = {}
-
 local toggle_file_selector
 
 ---@param buf integer: buffer id
@@ -37,7 +37,7 @@ local function setup_keymaps(buf, paths)
 					if success then
 						vim.notify("Deleted: " .. vim.fn.fnamemodify(path_to_delete, ":t"))
 						win_mgr.close_window("selector")
-						open_file_selector()
+						toggle_file_selector()
 					else
 						vim.notify("Error deleting file: " .. err, vim.log.levels.ERROR)
 					end
@@ -59,9 +59,19 @@ local function setup_keymaps(buf, paths)
 			end
 		end,
 	})
+
+	local opts = { noremap = true, silent = true }
+
+	-- Disable left/right arrow keys
+	vim.api.nvim_buf_set_keymap(buf, "n", "<Left>", "<Nop>", opts)
+	vim.api.nvim_buf_set_keymap(buf, "n", "<Right>", "<Nop>", opts)
+
+	-- Disable h and l keys
+	vim.api.nvim_buf_set_keymap(buf, "n", "h", "<Nop>", opts)
+	vim.api.nvim_buf_set_keymap(buf, "n", "l", "<Nop>", opts)
 end
 
----@return table: return tables of full paths and filenames
+---@return table files: return tables of full paths and filenames
 local function get_files()
 	local notes_dir = require("qnote.config").options.directory
 	local filenames = vim.fn.readdir(notes_dir)
@@ -87,10 +97,7 @@ function toggle_file_selector()
 		return
 	end
 
-	local buf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
-	vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
-	vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
+	win_mgr.selector_buf_id = vim.api.nvim_create_buf(false, true)
 
 	local files = get_files()
 
@@ -104,39 +111,12 @@ function toggle_file_selector()
 		file_cnt = file_cnt + 1
 	end
 
-	vim.api.nvim_buf_set_lines(buf, 0, -1, false, display_names)
-	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+	vim.api.nvim_buf_set_lines(win_mgr.selector_buf_id, 0, -1, false, display_names)
+	win_mgr.selector_win_id =
+		vim.api.nvim_open_win(win_mgr.selector_buf_id, true, conf.get_sel_win_conf(#files.filenames))
 
-	local width = math.max(math.floor(vim.o.columns * 0.5), 50)
-	local height = #files + 2
-	local row = math.floor((vim.o.lines - height) / 2)
-	local col = math.floor((vim.o.columns - width) / 2)
-
-	local opts = {
-		style = "minimal",
-		relative = "editor",
-		width = width,
-		height = height,
-		row = row,
-		col = col,
-		border = "rounded",
-		title = { { " QUICK NOTE - FILES ", "TelescopeResultsTitle" } },
-		title_pos = "center",
-		focusable = true,
-	}
-
-	win_mgr.selector_win_id = vim.api.nvim_open_win(buf, true, opts)
-
-	vim.api.nvim_create_autocmd("BufWinLeave", {
-		once = true,
-		buffer = buf,
-		desc = "Reset selector window state when closed",
-		callback = function()
-			win_mgr.close_window("selector")
-		end,
-	})
-
-	setup_keymaps(buf, files.path)
+	conf.setup_selector()
+	setup_keymaps(win_mgr.selector_buf_id, files.path)
 end
 
 function M.selector()

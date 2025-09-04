@@ -4,7 +4,7 @@ local M = {}
 
 local prompt_new_note
 
----@return string | nil: path to last modified file
+---@return string | nil latest_file: path to last modified file. returns nil if doesn't exist
 local function find_latest_file()
 	local dir_path = conf.options.directory
 	local files = vim.fn.readdir(dir_path)
@@ -36,7 +36,7 @@ local function find_latest_file()
 	return latest_file
 end
 
----@param file string: path to note file
+---@param file string: path to note file to open
 local function open_note_file(file)
 	local buf = vim.fn.bufnr(file, true)
 	win_mgr.note_buf_id = buf
@@ -49,7 +49,7 @@ local function open_note_file(file)
 	vim.bo[buf].swapfile = false
 
 	local filename = vim.fn.fnamemodify(file, ":t")
-	local win = vim.api.nvim_open_win(buf, true, conf.note_win_conf(filename))
+	local win = vim.api.nvim_open_win(buf, true, conf.get_note_win_conf(filename))
 	vim.api.nvim_set_option_value("relativenumber", true, { win = win })
 
 	win_mgr.note_win_id = win
@@ -82,7 +82,7 @@ function prompt_new_note()
 	end)
 end
 
----@param selected_file string: path to file
+---@param selected_file string: path to selected file
 function M.toggle(selected_file)
 	if win_mgr.note_win_id and vim.api.nvim_win_is_valid(win_mgr.note_win_id) then
 		win_mgr.close_window("note")
