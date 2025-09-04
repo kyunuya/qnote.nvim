@@ -38,24 +38,23 @@ end
 
 ---@param file string: path to note file to open
 local function open_note_file(file)
-	local buf = vim.fn.bufnr(file, true)
-	win_mgr.note_buf_id = buf
+	win_mgr.note_buf_id = vim.fn.bufnr(file, true)
 
-	if buf == -1 then
-		buf = vim.api.nvim_create_buf(false, false)
-		vim.api.nvim_buf_set_name(buf, file)
+	if win_mgr.note_buf_id == -1 then
+		win_mgr.note_buf_id = vim.api.nvim_create_buf(false, false)
+		vim.api.nvim_buf_set_name(win_mgr.note_buf_id, file)
 	end
 
-	vim.bo[buf].swapfile = false
+	vim.bo[win_mgr.note_buf_id].swapfile = false
 
 	local filename = vim.fn.fnamemodify(file, ":t")
-	local win = vim.api.nvim_open_win(buf, true, conf.get_note_win_conf(filename))
+	local win = vim.api.nvim_open_win(win_mgr.note_buf_id, true, conf.get_note_win_conf(filename))
 	vim.api.nvim_set_option_value("relativenumber", true, { win = win })
 
 	win_mgr.note_win_id = win
 
 	vim.api.nvim_create_autocmd("BufWinLeave", {
-		buffer = buf,
+		buffer = win_mgr.note_buf_id,
 		desc = "Reset window state on leave",
 		callback = function()
 			win_mgr.note_win_id = nil
